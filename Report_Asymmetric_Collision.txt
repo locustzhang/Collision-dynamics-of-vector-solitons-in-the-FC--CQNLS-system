@@ -1,0 +1,12 @@
+QUANTITATIVE ANALYSIS REPORT: Asymmetric_Collision
+============================================================
+1. Energy Conservation: Max Error = 1.46e-03 (0.1461%)
+2. Inelasticity (Radiation Loss): 0.4083%
+3. Max Compression Ratio: 1.248x
+4. Asymptotic Velocity: 0.9709 (Init: 0.5)
+5. Spatial Phase Shift: 20.8928
+6. Estimated collision time: 19.20
+7. Minimum soliton separation: 0.0719
+8. Final asymptotic phase shift (left): +1.9156
+9. Final asymptotic phase shift (right): -1.9156
+10. Max density compression ratio: 1.25x

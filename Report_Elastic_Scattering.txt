@@ -1,0 +1,12 @@
+QUANTITATIVE ANALYSIS REPORT: Elastic_Scattering
+============================================================
+1. Energy Conservation: Max Error = 1.11e-03 (0.1106%)
+2. Inelasticity (Radiation Loss): 0.3236%
+3. Max Compression Ratio: 1.691x
+4. Asymptotic Velocity: 1.1619 (Init: 0.6)
+5. Spatial Phase Shift: 23.4459
+6. Estimated collision time: 16.60
+7. Minimum soliton separation: 0.2363
+8. Final asymptotic phase shift (left): +1.0821
+9. Final asymptotic phase shift (right): -1.0821
+10. Max density compression ratio: 1.69x

@@ -1,0 +1,12 @@
+QUANTITATIVE ANALYSIS REPORT: Strong_Fractional_Effect
+============================================================
+1. Energy Conservation: Max Error = 7.76e-04 (0.0776%)
+2. Inelasticity (Radiation Loss): 0.3270%
+3. Max Compression Ratio: 2.325x
+4. Asymptotic Velocity: 0.9096 (Init: 0.6)
+5. Spatial Phase Shift: 15.1995
+6. Estimated collision time: 24.20
+7. Minimum soliton separation: 0.0705
+8. Final asymptotic phase shift (left): +3.0445
+9. Final asymptotic phase shift (right): -3.0445
+10. Max density compression ratio: 2.33x

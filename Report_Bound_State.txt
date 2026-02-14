@@ -1,0 +1,12 @@
+QUANTITATIVE ANALYSIS REPORT: Bound_State
+============================================================
+1. Energy Conservation: Max Error = 1.43e-03 (0.1428%)
+2. Inelasticity (Radiation Loss): 5.9495%
+3. Max Compression Ratio: 1.631x
+4. Asymptotic Velocity: 0.3012 (Init: 0.2)
+5. Spatial Phase Shift: 12.3456
+6. Estimated collision time: 31.50
+7. Minimum soliton separation: 0.2574
+8. Final asymptotic phase shift (left): +4.8672
+9. Final asymptotic phase shift (right): -4.8672
+10. Max density compression ratio: 1.63x
