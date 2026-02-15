@@ -1,0 +1,120 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib import rcParams
+
+# Science 风格设置
+rcParams.update({
+    'font.family': 'sans-serif',
+    'font.sans-serif': ['Arial', 'Helvetica', 'DejaVu Sans'],
+    'font.size': 11,
+    'axes.labelsize': 12,
+    'axes.titlesize': 13,
+    'axes.linewidth': 1.0,
+    'xtick.major.size': 4,
+    'ytick.major.size': 4,
+    'xtick.major.width': 1.0,
+    'ytick.major.width': 1.0,
+    'xtick.direction': 'out',
+    'ytick.direction': 'out',
+    'figure.dpi': 300,
+    'savefig.dpi': 600,
+    'savefig.bbox': 'tight',
+    'axes.grid': False,
+})
+
+# 数据
+regimes = ['Quasi-Elastic', 'Bound State', 'Asymmetric', 'Strong Fractional']
+x_pos = np.arange(len(regimes))
+
+# 关键观测量
+phase_shift = [1.08, 4.87, 1.92, 3.04]
+radiation_loss = [0.324, 5.950, 0.408, 0.327]
+compression_ratio = [1.69, 1.63, 1.25, 2.33]
+
+# 创建图形
+fig, ax1 = plt.subplots(figsize=(8, 5.5))
+
+# 配色方案（Science 风格）
+color_phi = '#0F4C81'      # 经典蓝
+color_eta = '#C75146'      # 砖红
+color_rho = '#4A7C59'      # 森林绿
+
+# 主Y轴：相移
+ax1.set_xlabel('Collision Regime', fontsize=12, fontweight='bold')
+ax1.set_ylabel('Asymptotic Phase Shift |Δφ|', color=color_phi, fontsize=12, fontweight='bold')
+line1 = ax1.plot(x_pos, phase_shift, 'o-', color=color_phi, linewidth=2.5,
+                 markersize=11, markerfacecolor='white', markeredgewidth=2,
+                 markeredgecolor=color_phi, label='|Δφ|', zorder=5)
+ax1.tick_params(axis='y', labelcolor=color_phi, labelsize=10)
+ax1.set_ylim(0, 5.5)
+ax1.set_xlim(-0.3, 3.3)
+
+# X轴标签
+ax1.set_xticks(x_pos)
+ax1.set_xticklabels(regimes, rotation=20, ha='right', fontsize=10)
+
+# 添加相移数值标签
+for i, (x, y) in enumerate(zip(x_pos, phase_shift)):
+    offset = 15 if i != 1 else -20  # Bound State 标签向下避免重叠
+    ax1.annotate(f'{y:.2f}', xy=(x, y), xytext=(0, offset),
+                textcoords='offset points', ha='center', fontsize=9,
+                color=color_phi, fontweight='bold')
+
+# 第二Y轴：辐射损失（对数）
+ax2 = ax1.twinx()
+ax2.set_ylabel('Radiation Loss η (%)', color=color_eta, fontsize=12, fontweight='bold')
+line2 = ax2.semilogy(x_pos, radiation_loss, 's--', color=color_eta, linewidth=2.5,
+                     markersize=10, markerfacecolor='white', markeredgewidth=2,
+                     markeredgecolor=color_eta, label='η', zorder=4)
+ax2.tick_params(axis='y', labelcolor=color_eta, labelsize=10)
+ax2.set_ylim(0.15, 8)
+ax2.set_yticks([0.3, 1, 3, 6])
+ax2.set_yticklabels(['0.3', '1', '3', '6'])
+
+# 添加辐射损失数值标签
+for i, (x, y) in enumerate(zip(x_pos, radiation_loss)):
+    offset = 12 if i != 1 else -18
+    va = 'bottom' if i != 1 else 'top'
+    ax2.annotate(f'{y:.2f}%', xy=(x, y), xytext=(0, offset),
+                textcoords='offset points', ha='center', fontsize=9,
+                color=color_eta, fontweight='bold', va=va)
+
+# 第三Y轴：压缩比
+ax3 = ax1.twinx()
+ax3.spines['right'].set_position(('outward', 65))
+ax3.set_ylabel('Density Compression Ratio', color=color_rho, fontsize=12, fontweight='bold')
+line3 = ax3.plot(x_pos, compression_ratio, '^:', color=color_rho, linewidth=2.5,
+                 markersize=10, markerfacecolor='white', markeredgewidth=2,
+                 markeredgecolor=color_rho, label='ρ_max/ρ_0', zorder=3)
+ax3.tick_params(axis='y', labelcolor=color_rho, labelsize=10)
+ax3.set_ylim(1.0, 2.6)
+
+# 添加压缩比数值标签
+for i, (x, y) in enumerate(zip(x_pos, compression_ratio)):
+    offset = -15 if i != 3 else 15  # Strong Fractional 标签向上
+    ax3.annotate(f'{y:.2f}×', xy=(x, y), xytext=(0, offset),
+                textcoords='offset points', ha='center', fontsize=9,
+                color=color_rho, fontweight='bold')
+
+# 统一图例
+lines = line1 + line2 + line3
+labels = [r'$|\Delta\phi|$ (Phase Shift)', r'$\eta$ (Radiation Loss, %)',
+          r'$\rho_{\max}/\rho_0$ (Compression)']
+legend = ax1.legend(lines, labels, loc='upper left', frameon=True,
+                    fancybox=False, edgecolor='gray', fontsize=9,
+                    bbox_to_anchor=(0.02, 0.98))
+legend.get_frame().set_linewidth(0.8)
+
+# 添加 subtle 网格
+ax1.yaxis.grid(True, linestyle='--', alpha=0.3, color='gray')
+ax1.set_axisbelow(True)
+
+# 标题
+plt.title('Parametric Dependence of Collision Dynamics',
+          fontsize=13, fontweight='bold', pad=15)
+
+plt.savefig('Fig_Comparison_Lines_Science.png', dpi=300,
+            facecolor='white', edgecolor='none')
+plt.show()
+
+print("Saved: Fig_Comparison_Lines_Science.png")
