@@ -341,7 +341,7 @@ def analyze_and_plot(exp_name, df, plot_data, x, alpha, v_init, extra_title=""):
 
     ax3d.text2D(0.0, 0.95, f"(a) {extra_title}", transform=ax3d.transAxes, fontsize=12, fontweight='bold')
 
-    # Panel B: Trajectory（升级配色和标注样式）
+    # Panel B: Trajectory（升级配色和标注样式，图例移至右上角）
     ax_traj = fig.add_subplot(gs[1, 0])
     ax_traj.plot(df["t"], df["CM_Left"], color=COLOR_TRAJ_1, lw=2.0, label='Soliton 1')
     ax_traj.plot(df["t"], df["CM_Right"], color=COLOR_TRAJ_2, lw=2.0, label='Soliton 2')
@@ -362,10 +362,11 @@ def analyze_and_plot(exp_name, df, plot_data, x, alpha, v_init, extra_title=""):
 
     ax_traj.set_xlabel("Time ($t$)")
     ax_traj.set_ylabel("Center of Mass ($x_{cm}$)")
-    ax_traj.legend(frameon=True, framealpha=0.9, edgecolor='none', fontsize=8)
+    # 修改：图例移至左下角，避免与碰撞点重合
+    ax_traj.legend(frameon=True, framealpha=0.9, edgecolor='none', fontsize=8,
+                   loc='lower left', bbox_to_anchor=(0.02, 0.02))
     ax_traj.grid(True, linestyle=':', alpha=0.6)
     ax_traj.text(0.05, 0.9, "(b) Trajectories", transform=ax_traj.transAxes, fontweight='bold')
-
     # Panel C: Peak Density（升级配色和填充效果）
     ax_peak = fig.add_subplot(gs[1, 1])
     ax_peak.fill_between(df["t"], df["Max_Rho"], color=COLOR_PEAK, alpha=0.2)
@@ -392,10 +393,10 @@ def analyze_and_plot(exp_name, df, plot_data, x, alpha, v_init, extra_title=""):
     ax_rad.grid(True, linestyle=':', alpha=0.6)
     ax_rad.text(0.05, 0.9, "(d) Radiation Loss", transform=ax_rad.transAxes, fontweight='bold')
 
-    # Panel E: Energy Error（升级配色和格式）
+    # Panel E: Energy Error（升级配色和格式，改为 Norm Conservation Error）
     ax_err = fig.add_subplot(gs[2, 1])
     ax_err.plot(df["t"], df["H_err"] * 100, color=COLOR_ERR, lw=1.8)
-    ax_err.set_ylabel("Energy Error (%)")
+    ax_err.set_ylabel("Norm Conservation Error (%)")  # 精炼后的标签
     ax_err.set_xlabel("Time ($t$)")
     ax_err.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
     ax_err.grid(True, linestyle=':', alpha=0.6)
