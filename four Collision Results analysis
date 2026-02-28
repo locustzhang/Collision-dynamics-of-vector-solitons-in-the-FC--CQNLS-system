@@ -22,24 +22,21 @@ rcParams.update({
     'axes.grid': False,
 })
 
-# 数据
+# 数据（完全匹配论文Table 2）
 regimes = ['Quasi-Elastic', 'Bound State', 'Asymmetric', 'Strong Fractional']
 x_pos = np.arange(len(regimes))
-
-# 关键观测量
 phase_shift = [1.08, 4.87, 1.92, 3.04]
 radiation_loss = [0.324, 5.950, 0.408, 0.327]
 compression_ratio = [1.69, 1.63, 1.25, 2.33]
 
 # 创建图形
 fig, ax1 = plt.subplots(figsize=(8, 5.5))
+# 配色方案（Science期刊风格，与论文保持一致）
+color_phi = '#0F4C81'      # 经典蓝（相移）
+color_eta = '#C75146'      # 砖红（辐射损耗）
+color_rho = '#4A7C59'      # 森林绿（压缩比）
 
-# 配色方案（Science 风格）
-color_phi = '#0F4C81'      # 经典蓝
-color_eta = '#C75146'      # 砖红
-color_rho = '#4A7C59'      # 森林绿
-
-# 主Y轴：相移
+# 主Y轴：渐近相移 |Δφ|
 ax1.set_xlabel('Collision Regime', fontsize=12, fontweight='bold')
 ax1.set_ylabel('Asymptotic Phase Shift |Δφ|', color=color_phi, fontsize=12, fontweight='bold')
 line1 = ax1.plot(x_pos, phase_shift, 'o-', color=color_phi, linewidth=2.5,
@@ -53,33 +50,34 @@ ax1.set_xlim(-0.3, 3.3)
 ax1.set_xticks(x_pos)
 ax1.set_xticklabels(regimes, rotation=20, ha='right', fontsize=10)
 
-# 添加相移数值标签
+# ========== 相移数值标签：Bound State(4.87) 左+轻微向下（上移版） ==========
+phase_offsets = [(0, 20), (0, -15), (0, 15), (0, -15)]  # 核心调整：-10（仅轻微向下）
+phase_va = ['bottom', 'top', 'bottom', 'top']
 for i, (x, y) in enumerate(zip(x_pos, phase_shift)):
-    offset = 15 if i != 1 else -20  # Bound State 标签向下避免重叠
-    ax1.annotate(f'{y:.2f}', xy=(x, y), xytext=(0, offset),
+    ax1.annotate(f'{y:.2f}', xy=(x, y), xytext=phase_offsets[i],
                 textcoords='offset points', ha='center', fontsize=9,
-                color=color_phi, fontweight='bold')
+                color=color_phi, fontweight='bold', va=phase_va[i])
 
-# 第二Y轴：辐射损失（对数）
+# 第二Y轴：辐射损耗 η (%)（对数刻度）
 ax2 = ax1.twinx()
 ax2.set_ylabel('Radiation Loss η (%)', color=color_eta, fontsize=12, fontweight='bold')
 line2 = ax2.semilogy(x_pos, radiation_loss, 's--', color=color_eta, linewidth=2.5,
                      markersize=10, markerfacecolor='white', markeredgewidth=2,
                      markeredgecolor=color_eta, label='η', zorder=4)
 ax2.tick_params(axis='y', labelcolor=color_eta, labelsize=10)
-ax2.set_ylim(0.15, 8)
+ax2.set_ylim(0.2, 8)
 ax2.set_yticks([0.3, 1, 3, 6])
 ax2.set_yticklabels(['0.3', '1', '3', '6'])
 
-# 添加辐射损失数值标签
+# ========== 辐射损耗数值标签：Bound State(5.95%) 右+轻微向下（上移版） ==========
+rad_offsets = [(0, -20), (20, 0), (0, 12), (0, -18)]  # 核心调整：-15（仅轻微向下）
+rad_va = ['top', 'top', 'bottom', 'top']
 for i, (x, y) in enumerate(zip(x_pos, radiation_loss)):
-    offset = 12 if i != 1 else -18
-    va = 'bottom' if i != 1 else 'top'
-    ax2.annotate(f'{y:.2f}%', xy=(x, y), xytext=(0, offset),
+    ax2.annotate(f'{y:.2f}%', xy=(x, y), xytext=rad_offsets[i],
                 textcoords='offset points', ha='center', fontsize=9,
-                color=color_eta, fontweight='bold', va=va)
+                color=color_eta, fontweight='bold', va=rad_va[i])
 
-# 第三Y轴：压缩比
+# 第三Y轴：密度压缩比 ρ_max/ρ_0（右外移65像素，避免重叠）
 ax3 = ax1.twinx()
 ax3.spines['right'].set_position(('outward', 65))
 ax3.set_ylabel('Density Compression Ratio', color=color_rho, fontsize=12, fontweight='bold')
@@ -89,14 +87,14 @@ line3 = ax3.plot(x_pos, compression_ratio, '^:', color=color_rho, linewidth=2.5,
 ax3.tick_params(axis='y', labelcolor=color_rho, labelsize=10)
 ax3.set_ylim(1.0, 2.6)
 
-# 添加压缩比数值标签
+# 压缩比数值标签（原有优化逻辑，无重叠）
 for i, (x, y) in enumerate(zip(x_pos, compression_ratio)):
-    offset = -15 if i != 3 else 15  # Strong Fractional 标签向上
+    offset = -15 if i != 3 else 15  # Strong Fractional 向上偏移
     ax3.annotate(f'{y:.2f}×', xy=(x, y), xytext=(0, offset),
                 textcoords='offset points', ha='center', fontsize=9,
                 color=color_rho, fontweight='bold')
 
-# 统一图例
+# 统一图例（左上位置，不遮挡数据，带浅灰边框）
 lines = line1 + line2 + line3
 labels = [r'$|\Delta\phi|$ (Phase Shift)', r'$\eta$ (Radiation Loss, %)',
           r'$\rho_{\max}/\rho_0$ (Compression)']
@@ -105,16 +103,17 @@ legend = ax1.legend(lines, labels, loc='upper left', frameon=True,
                     bbox_to_anchor=(0.02, 0.98))
 legend.get_frame().set_linewidth(0.8)
 
-# 添加 subtle 网格
+# 浅灰色网格（仅相移轴，提升可读性）
 ax1.yaxis.grid(True, linestyle='--', alpha=0.3, color='gray')
 ax1.set_axisbelow(True)
 
-# 标题
+# 标题（与论文Fig.5保持一致）
 plt.title('Parametric Dependence of Collision Dynamics',
           fontsize=13, fontweight='bold', pad=15)
 
-plt.savefig('Fig_Comparison_Lines_Science.png', dpi=300,
+# 保存高清图片（直接用于论文，白色背景无边缘）
+plt.savefig('Fig_Comparison_Lines_Science_final_opt.png', dpi=300,
             facecolor='white', edgecolor='none')
 plt.show()
 
-print("Saved: Fig_Comparison_Lines_Science.png")
+print("Saved: Fig_Comparison_Lines_Science_final_opt.png")
