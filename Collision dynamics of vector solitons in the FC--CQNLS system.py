@@ -202,7 +202,7 @@ class CQNLS_System:
                     phase_shift_l = cm1 - expected_l
                     phase_shift_r = -phase_shift_l  # 简化假设对称
 
-                # Radiation (Tail ratio)
+                # Radiation (Tail ratio) - 修正：注释改为 power loss
                 mask_core = (self.x > cm1 - 15) & (self.x < cm1 + 15) | (self.x > cm2 - 15) & (self.x < cm2 + 15)
                 N_core = rho_tot[mask_core].sum().item() * self.dx
                 N_total = rho_tot.sum().item() * self.dx
@@ -221,27 +221,27 @@ class CQNLS_System:
                 plot_data["t"].append(t_now)
                 plot_data["psi_sq"].append(rho_tot.cpu().numpy())
 
-                # 每 10% 进度打印更详细的信息
+                # 每 10% 进度打印更详细的信息 - 修正：Rad标注改为 power loss
                 if i % (steps // 10) == 0 or i == steps:
                     print(f"  Progress {i / steps * 100:5.1f}% | t={t_now:6.2f} | "
                           f"H_err={H_err:.2e} | MaxRho={max_rho:7.4f} | "
-                          f"Sep={sep:6.3f} | Rad={rad_ratio * 100:5.2f}% | "
+                          f"Sep={sep:6.3f} | Rad (power loss)={rad_ratio * 100:5.2f}% | "
                           f"PS_L={phase_shift_l:+.4f}")
 
-        # 最终诊断打印
+        # 最终诊断打印 - 修正：Radiation标注改为 power loss
         if collision_idx >= 0:
             print("\n  === Collision Summary ===")
             print(f"    Estimated collision time: t ≈ {collision_t:.2f}")
             print(f"    Minimum separation: {min_sep:.4f}")
             print(f"    At collision → MaxRho = {data_log['Max_Rho'][collision_idx]:.4f}")
-            print(f"    Radiation at collision: {data_log['Radiation'][collision_idx] * 100:.2f}%")
+            print(f"    Radiation (power loss) at collision: {data_log['Radiation'][collision_idx] * 100:.2f}%")
 
-        # 最终汇总打印
+        # 最终汇总打印 - 修正：Radiation loss 改为 power loss
         final_rad = data_log["Radiation"][-1] * 100
         max_H_err_pct = max(data_log["H_err"]) * 100
         final_phase_l = data_log["Phase_Shift_Left"][-1]
         print(f"\n  === Final Summary ===")
-        print(f"    Total radiation loss: {final_rad:.3f}%")
+        print(f"    Total radiation power loss: {final_rad:.3f}%")
         print(f"    Max energy error: {max_H_err_pct:.4f}%")
         print(f"    Asymptotic phase shift (left soliton): {final_phase_l:+.4f}")
         print(f"    Simulation time: {time.time() - start_time:.1f} s")
@@ -276,13 +276,13 @@ def analyze_and_plot(exp_name, df, plot_data, x, alpha, v_init, extra_title=""):
     x_start = df["CM_Left"].iloc[0]
     spatial_shift = cm_tail[-1] - (x_start + v_init * t_tail[-1])
 
-    # 打印定量报告（扩展版）
+    # 打印定量报告（扩展版）- 修正：Radiation Loss 改为 Power Loss
     report_path = os.path.join(OUTPUT_DIR, f"Report_{exp_name}.txt")
     with open(report_path, "w") as f:
         f.write(f"QUANTITATIVE ANALYSIS REPORT: {exp_name}\n")
         f.write("=" * 60 + "\n")
         f.write(f"1. Energy Conservation: Max Error = {max_H_err:.2e} ({max_H_err * 100:.4f}%)\n")
-        f.write(f"2. Inelasticity (Radiation Loss): {final_rad * 100:.4f}%\n")
+        f.write(f"2. Inelasticity (Radiation Power Loss): {final_rad * 100:.4f}%\n")
         f.write(f"3. Max Compression Ratio: {max_compression:.3f}x\n")
         f.write(f"4. Asymptotic Velocity: {v_final:.4f} (Init: {v_init})\n")
         f.write(f"5. Spatial Phase Shift: {spatial_shift:.4f}\n")
@@ -383,15 +383,15 @@ def analyze_and_plot(exp_name, df, plot_data, x, alpha, v_init, extra_title=""):
     ax_peak.grid(True, linestyle=':', alpha=0.6)
     ax_peak.text(0.05, 0.9, "(c) Amplitude Dynamics", transform=ax_peak.transAxes, fontweight='bold')
 
-    # Panel D: Radiation（升级配色和填充）
+    # Panel D: Radiation（升级配色和填充）- 修正：ylabel改为 Radiation Power Loss
     ax_rad = fig.add_subplot(gs[2, 0])
     ax_rad.semilogy(df["t"], df["Radiation"], color=COLOR_RAD, lw=2.0)
     ax_rad.fill_between(df["t"], df["Radiation"], 1e-10, color=COLOR_RAD, alpha=0.1)
-    ax_rad.set_ylabel("Radiation Ratio")
+    ax_rad.set_ylabel("Radiation Power Loss Ratio")
     ax_rad.set_xlabel("Time ($t$)")
     ax_rad.set_ylim(bottom=1e-6)
     ax_rad.grid(True, linestyle=':', alpha=0.6)
-    ax_rad.text(0.05, 0.9, "(d) Radiation Loss", transform=ax_rad.transAxes, fontweight='bold')
+    ax_rad.text(0.05, 0.9, "(d) Radiation Power Loss", transform=ax_rad.transAxes, fontweight='bold')
 
     # Panel E: Energy Error（升级配色和格式，改为 Norm Conservation Error）
     ax_err = fig.add_subplot(gs[2, 1])
