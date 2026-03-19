@@ -186,15 +186,17 @@ class CQNLS_System:
                 min_sep = abs(cm_R - cm_L)
 
                 norm_err = (current_norm / max(1e-12, total_particles_0) - 1) * 100
+                # 修正：Rad Est 标注改为 Radiative Power Loss
                 rad_est = (1.0 - current_max_rho / max(1e-12, max_rho_0)) * 100
 
                 progress = (i / steps) * 100
                 elapsed = time.time() - start_time
                 eta = elapsed / max(1e-6, progress) * (100 - progress) if progress > 0 else 0
 
+                # 修正：打印信息中 Rad Est 改为 Radiative Power Loss
                 print(f"  t={t_now:6.2f} ({progress:5.1f}%) | "
                       f"Norm Err={norm_err:+8.5f}% | "
-                      f"ρ_max={current_max_rho:8.4f} | Rad Est={rad_est:6.2f}% | "
+                      f"ρ_max={current_max_rho:8.4f} | Radiative Power Loss={rad_est:6.2f}% | "
                       f"Sep={min_sep:6.3f} | CM=({cm_L:6.3f}, {cm_R:6.3f}) | "
                       f"ETA ~{eta/60:.1f} min")
 
@@ -225,6 +227,7 @@ class CQNLS_System:
         min_dist = np.min(dist)
         collision_time = t_arr[np.argmin(dist)] if len(dist) > 0 else 0.0
 
+        # 修正：Radiation (%) 改为 Radiative Power Loss (%)
         radiation = (1.0 - max_rho_arr[-1] / max(1e-12, max_rho_0)) * 100
 
         skip = 3
@@ -257,13 +260,14 @@ class CQNLS_System:
         final_norm_error = (particles_arr[-1] / max(1e-12, total_particles_0) - 1) * 100
         final_energy_error = (energy_arr[-1] / max(1e-12, energy_0) - 1) * 100
 
+        # 修正：Particle Loss (%) 改为 Norm Loss (%)（更准确的物理表述）
         bound_threshold = 2.0
         is_bound = (min_dist < bound_threshold) and \
                    (abs(v_final_L) < 0.1 * abs(initial_v)) and \
                    (abs(v_final_R) < 0.1 * abs(initial_v))
 
         return {
-            "Radiation (%)": radiation,
+            "Radiative Power Loss (%)": radiation,  # 修正：字段名
             "Min Separation": min_dist,
             "Compression Ratio": compression,
             "Max Density Final": max_rho_arr[-1],
@@ -273,7 +277,7 @@ class CQNLS_System:
             "Initial Velocity L": v_init_L,
             "Initial Velocity R": v_init_R,
             "Momentum Error": momentum_error,
-            "Particle Loss (%)": (1.0 - particles_arr[-1] / max(1e-12, total_particles_0)) * 100,
+            "Norm Loss (%)": (1.0 - particles_arr[-1] / max(1e-12, total_particles_0)) * 100,  # 修正：字段名
             "Final Norm Error (%)": final_norm_error,
             "Final Energy Error (%)": final_energy_error,
             "Initial Energy": energy_0,
@@ -328,7 +332,8 @@ def run_full_sweeps():
         metrics["param"] = v
         res_v.append(metrics)
 
-        print(f"  [总结] v={v:.2f} → Rad={metrics['Radiation (%)']:6.2f}%, "
+        # 修正：打印信息中 Rad 改为 Radiative Power Loss
+        print(f"  [总结] v={v:.2f} → Radiative Power Loss={metrics['Radiative Power Loss (%)']:6.2f}%, "
               f"Comp={metrics['Compression Ratio']:.2f}, VelΔ={metrics['Velocity Change (%)']:5.2f}%, "
               f"MinSep={metrics['Min Separation']:5.2f}, Norm Err={metrics['Final Norm Error (%)']:6.4f}%, "
               f"Bound={metrics['Is Bound State']}")
@@ -372,7 +377,8 @@ def run_full_sweeps():
         metrics["param"] = alpha
         res_a.append(metrics)
 
-        print(f"  [总结] α={alpha:.2f} → Rad={metrics['Radiation (%)']:6.2f}%, "
+        # 修正：打印信息中 Rad 改为 Radiative Power Loss
+        print(f"  [总结] α={alpha:.2f} → Radiative Power Loss={metrics['Radiative Power Loss (%)']:6.2f}%, "
               f"Comp={metrics['Compression Ratio']:.2f}, VelΔ={metrics['Velocity Change (%)']:5.2f}%, "
               f"MinSep={metrics['Min Separation']:5.2f}, Norm Err={metrics['Final Norm Error (%)']:6.4f}%, "
               f"Bound={metrics['Is Bound State']}")
@@ -402,11 +408,13 @@ def plot_six_subplots(df, name, xlabel):
     subplot_labels = ['a', 'b', 'c', 'd', 'e', 'f']
 
     ax1 = fig.add_subplot(gs[0, 0])
-    ln1 = ax1.plot(x, df["Radiation (%)"], 'o-', color=c_rad, label="Radiation",
+    # 修正：绘图字段改为 Radiative Power Loss (%)
+    ln1 = ax1.plot(x, df["Radiative Power Loss (%)"], 'o-', color=c_rad, label="Radiative Power Loss",
                    markerfacecolor='white', markeredgewidth=2)
-    ax1.fill_between(x, df["Radiation (%)"], color=c_rad, alpha=0.1)
+    ax1.fill_between(x, df["Radiative Power Loss (%)"], color=c_rad, alpha=0.1)
     ax1.set_xlabel(xlabel, fontweight='bold')
-    ax1.set_ylabel("Radiation Loss (%)", color=c_rad, fontweight='bold')
+    # 修正：ylabel 改为 Radiative Power Loss (%)
+    ax1.set_ylabel("Radiative Power Loss (%)", color=c_rad, fontweight='bold')
     ax1.tick_params(axis='y', labelcolor=c_rad)
     ax1_twin = ax1.twinx()
     ln2 = ax1_twin.plot(x, df["Compression Ratio"], 's--', color=c_cmp, label="Compression",
@@ -414,7 +422,8 @@ def plot_six_subplots(df, name, xlabel):
     ax1_twin.set_ylabel("Compression Ratio", color=c_cmp, fontweight='bold')
     ax1_twin.tick_params(axis='y', labelcolor=c_cmp)
     ax1.legend(ln1 + ln2, [l.get_label() for l in ln1 + ln2], loc='best')
-    ax1.set_title(f"({subplot_labels[0]}) Inelasticity & Deformation", loc='left', fontsize=14)
+    # 修正：标题中 Inelasticity 改为 Inelasticity (Power Loss)
+    ax1.set_title(f"({subplot_labels[0]}) Inelasticity (Power Loss) & Deformation", loc='left', fontsize=14)
 
     ax2 = fig.add_subplot(gs[0, 1])
     ax2.plot(x, df["Min Separation"], 'D-', color=c_sep, lw=2,
@@ -469,8 +478,9 @@ def plot_six_subplots(df, name, xlabel):
                  markerfacecolor='white', markeredgewidth=2)
     ax6.fill_between(x, 1e-8, np.abs(norm_err).clip(lower=1e-8), color=c_norm, alpha=0.12)
     ax6.set_xlabel(xlabel, fontweight='bold')
-    ax6.set_ylabel("Norm Conservation Error (%)", fontweight='bold')
-    ax6.set_title(f"({subplot_labels[5]}) Particle Number Conservation", loc='left', fontsize=14)
+    # 修正：ylabel 改为 Norm Conservation Error (%)
+    ax6.set_ylabel("Optical Power Conservation Error (%)", fontweight='bold')
+    ax6.set_title(f"({subplot_labels[5]}) Optical Power Conservation", loc='left', fontsize=14)
     ax6.axhline(0.01, color='gray', ls='--', alpha=0.7, label='0.01% threshold')
     ax6.legend(loc='best')
     ax6.set_axisbelow(True)
